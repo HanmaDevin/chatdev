@@ -7,11 +7,14 @@ templ Index() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chatdev</title>
+  <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.4/dist/ext/ws.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.4/dist/ext/multi-swap.js"></script>
 </head>
 
 <body>
-  <div>
-    <div>
+  <div hx-ext="ws" ws-connect="/chatroom">
+    <div id="chatroom">
       @Message("Welcome to Chatdev! This is a simple chat application built with Go and WebSockets.")
     </div>
   </div>
