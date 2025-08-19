@@ -14,6 +14,10 @@ templ Index() {
 
 <body>
   <div hx-ext="ws" ws-connect="/chatroom">
+    <form id="chat-form" ws-send="message">
+      <input type="text" name="message" placeholder="Type your message here..." required>
+      <button type="submit">Send</button>
+    </form>
     <div id="chatroom">
       @Message("Welcome to Chatdev! This is a simple chat application built with Go and WebSockets.")
     </div>
