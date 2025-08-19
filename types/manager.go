@@ -47,7 +47,7 @@ func (m *Manager) HandleClientListEventChan(ctx context.Context) {
 	}
 }
 
-func (m *Manager) Handle(c echo.Context) error {
+func (m *Manager) Handle(c echo.Context, ctx context.Context) error {
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
@@ -60,8 +60,14 @@ func (m *Manager) Handle(c echo.Context) error {
 	}
 
 	go newClient.ReceiveMessage(c)
-	go newClient.SendMessage(c)
+	go newClient.SendMessage(c, ctx)
 	return nil
+}
+
+func (m *Manager) WriteMessageToChatroom(chatroom string, message string) {
+	for _, client := range m.GetClientsByChatroom(chatroom) {
+		client.MessageChan <- message
+	}
 }
 
 func (m *Manager) AddClient(client *Client) {

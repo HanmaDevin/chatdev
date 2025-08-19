@@ -4,11 +4,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/HanmaDevin/chatdev/templates"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
+)
+
+var (
+	pingInterval = 9 * time.Second
+	pongWait     = 10 * time.Second
 )
 
 type Client struct {
@@ -29,7 +35,7 @@ func NewClient(conn *websocket.Conn, manager *Manager) *Client {
 	}
 }
 
-func (c *Client) SendMessage(ctx echo.Context) {
+func (c *Client) SendMessage(echoContext echo.Context, ctx context.Context) {
 	defer func() {
 		c.Connection.Close()
 		c.Manager.ClientListEventChan <- &ClientListEvent{
@@ -37,6 +43,8 @@ func (c *Client) SendMessage(ctx echo.Context) {
 			Client:    c,
 		}
 	}()
+
+	ticker := time.NewTicker(pingInterval)
 
 	for {
 		select {
@@ -46,26 +54,44 @@ func (c *Client) SendMessage(ctx echo.Context) {
 			}
 			component := templates.Message(msg)
 			buffer := new(bytes.Buffer)
-			if err := component.Render(context.Background(), buffer); err != nil {
-				ctx.Logger().Errorf("Error rendering message: %v", err)
+			if err := component.Render(ctx, buffer); err != nil {
+				echoContext.Logger().Errorf("Error rendering message: %v", err)
 				return
 			}
 
-			for _, client := range c.Manager.ClientList {
-				err := client.Connection.WriteMessage(websocket.TextMessage, buffer.Bytes())
-				if err != nil {
-					ctx.Logger().Errorf("Error sending message to client %s: %v", client.Id, err)
-					continue
-				}
+			err := c.Connection.WriteMessage(websocket.TextMessage, buffer.Bytes())
+			if err != nil {
+				echoContext.Logger().Errorf("Error sending message to client %s: %v", c.Id, err)
+				continue
 			}
 
-		case <-context.Background().Done():
+		case <-ctx.Done():
 			return
+
+		case <-ticker.C:
+			if err := c.Connection.WriteMessage(websocket.PingMessage, []byte("")); err != nil {
+				echoContext.Logger().Errorf("Error sending ping: %v", err)
+				return
+			}
+			fmt.Printf("Ping sent to client %s\n", c.Id)
 		}
 	}
 }
 
 func (c *Client) ReceiveMessage(ctx echo.Context) {
+	if err := c.Connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		ctx.Logger().Errorf("Error setting read deadline: %v", err)
+		return
+	}
+
+	c.Connection.SetPongHandler(func(appData string) error {
+		if err := c.Connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			ctx.Logger().Errorf("Error resetting read deadline: %v", err)
+			return err
+		}
+		fmt.Printf("Pong received from client %s\n", c.Id)
+		return nil
+	})
 	defer func() {
 		c.Connection.Close()
 		c.Manager.ClientListEventChan <- &ClientListEvent{
@@ -81,6 +107,6 @@ func (c *Client) ReceiveMessage(ctx echo.Context) {
 		}
 
 		fmt.Printf("Received message: %s\n", msg)
-		c.MessageChan <- string(msg)
+		c.Manager.WriteMessageToChatroom(c.Chatroom, string(msg))
 	}
 }
