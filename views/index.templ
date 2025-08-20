@@ -1,0 +1,27 @@
+package views
+
+import (
+"github.com/HanmaDevin/chatdev/types"
+)
+
+templ Index(data types.Index) {
+<html>
+
+<head>
+  <title>Welcome to {data.AppName}</title>
+  // cdn link for htmx
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js"
+    integrity="sha384-ksKjJrwjL5VxqAkAZAVOPXvMkwAykMaNYegdixAESVr+KqLkKE8XBDoZuwyWVUDv"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <h1>Welcome to {data.AppName}</h1>
+  <p>This is the home page.</p>
+  <p>Current time: {data.CurrentTime}</p>
+
+  <a href="/chats">View Chats</a>
+</body>
+
+</html>
+}
