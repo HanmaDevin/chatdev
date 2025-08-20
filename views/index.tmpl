@@ -1,0 +1,18 @@
+package views
+
+import (
+  "github.com/HanmaDevin/chatdev/types"
+)
+
+templ Index(data types.Index) {
+  <html>
+  <head>
+    <title>Welcome to {data.AppName}</title>
+  </head>
+  <body>
+    <h1>Welcome to {data.AppName}</h1>
+    <p>This is the home page of your application.</p>
+    <p>Current time: {data.CurrentTime}</p>
+  </body>
+  </html>
+}
