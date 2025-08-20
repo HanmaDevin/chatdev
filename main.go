@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 )
 
 var currentTime = time.Now().Format("15:04") + " Uhr"
-var data = []types.ChatRoom{}
+var data = []types.Chat{}
 
 func indexHandler(c echo.Context) error {
 	data := types.Index{
@@ -18,6 +19,7 @@ func indexHandler(c echo.Context) error {
 		CurrentTime: currentTime,
 	}
 	component := views.Index(data)
+	fmt.Printf("Data: %+v\n", data)
 
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
@@ -33,6 +35,7 @@ func loginAuthHandler(c echo.Context) error {
 func chatsHandler(c echo.Context) error {
 
 	component := views.Chats(data)
+	fmt.Printf("Data: %+v\n", data)
 
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
@@ -43,9 +46,10 @@ func convHandler(c echo.Context) error {
 	if err != nil || idint < 1 || idint > len(data) {
 		return c.String(404, "Chat not found")
 	}
+	fmt.Printf("ID: %s\n, ID Int: %d\n, Error: %v\n", id, idint, err)
 	// database simulation
-	conv := views.Conversation(data[idint-1])
-	component := views.Layout(data, conv)
+	chat := data[idint-1]
+	component := views.Conversation(chat)
 
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
@@ -53,7 +57,7 @@ func convHandler(c echo.Context) error {
 func main() {
 	e := echo.New()
 
-	data = append(data, types.ChatRoom{
+	data = append(data, types.Chat{
 		ID:   "1",
 		Name: "Chat 1",
 		Messages: []types.Message{
@@ -77,7 +81,7 @@ func main() {
 			},
 		},
 	})
-	data = append(data, types.ChatRoom{
+	data = append(data, types.Chat{
 		ID:   "2",
 		Name: "Chat 2",
 		Messages: []types.Message{
@@ -101,7 +105,7 @@ func main() {
 			},
 		},
 	})
-	data = append(data, types.ChatRoom{
+	data = append(data, types.Chat{
 		ID:   "3",
 		Name: "Chat 3",
 		Messages: []types.Message{
@@ -130,7 +134,7 @@ func main() {
 	e.GET("/chats", chatsHandler)
 	e.GET("/login", loginHandler)
 	e.POST("/login", loginAuthHandler)
-	e.GET("/chats/:id", convHandler)
+	e.GET("/chat/:id", convHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

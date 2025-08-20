@@ -12,7 +12,7 @@ type Message struct {
 	Sender    string
 }
 
-type ChatRoom struct {
+type Chat struct {
 	ID       string
 	Name     string
 	Messages []Message
