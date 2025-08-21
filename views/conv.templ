@@ -2,7 +2,7 @@ package views
 
 import "github.com/HanmaDevin/chatdev/types"
 
-templ Conversation(chat types.Chat) {
+templ Conversation(chat *types.Chat) {
 <div class="conversation">
   for _, message := range chat.Messages {
   <div class="message" data-id={ message.ID }>
