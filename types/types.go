@@ -6,8 +6,9 @@ type Index struct {
 }
 
 type Message struct {
-	Content   string
-	Timestamp string
+	Sender    string `json:"sender"`
+	Message   string `json:"message"`
+	Timestamp string `json:"timestamp"`
 }
 
 type Chat struct {

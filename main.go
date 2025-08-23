@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/HanmaDevin/chatdev/types"
@@ -12,7 +15,13 @@ import (
 
 var (
 	currentTime = time.Now().Format("15:04") + " Uhr"
-	upgrader    = websocket.Upgrader{}
+	upgrader    = websocket.Upgrader{
+		WriteBufferSize: 1024,
+		ReadBufferSize:  1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 )
 
 func indexHandler(c echo.Context) error {
@@ -39,7 +48,18 @@ func joinChatHandler(c echo.Context) error {
 		// 	break
 		// }
 		// fmt.Printf("Received: %s\n", msg)
-		if err := ws.WriteMessage(websocket.TextMessage, []byte("Hello!")); err != nil {
+		currentTime = time.Now().Format("15:04") + " Uhr"
+		msg := types.Message{
+			Sender:    "System",
+			Message:   "Hello! This is a test message. To see how longer messages are handled, please wait for the next message.",
+			Timestamp: currentTime,
+		}
+
+		component := views.Msg(msg)
+		buffer := new(bytes.Buffer)
+		component.Render(context.Background(), buffer)
+
+		if err := ws.WriteMessage(websocket.TextMessage, buffer.Bytes()); err != nil {
 			c.Logger().Error(err)
 		}
 		time.Sleep(3 * time.Second)
@@ -48,6 +68,11 @@ func joinChatHandler(c echo.Context) error {
 
 func loginHandler(c echo.Context) error {
 	component := views.Login(types.FormData{})
+	return component.Render(c.Request().Context(), c.Response().Writer)
+}
+
+func chatHandler(c echo.Context) error {
+	component := views.Chat()
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
 
@@ -70,7 +95,8 @@ func main() {
 	e := echo.New()
 
 	e.GET("/", indexHandler)
-	e.GET("/chat", joinChatHandler)
+	e.GET("/ws", joinChatHandler)
+	e.GET("/chat", chatHandler)
 	e.GET("/login", loginHandler)
 	e.POST("/login", loginAuthHandler)
 	e.GET("/register", registerHandler)
