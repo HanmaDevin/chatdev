@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/http"
@@ -35,37 +34,6 @@ func indexHandler(c echo.Context) error {
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
 
-func joinChatHandler(c echo.Context) error {
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		return err
-	}
-	defer ws.Close()
-
-	for {
-		// _, msg, err := ws.ReadMessage()
-		// if err != nil {
-		// 	break
-		// }
-		// fmt.Printf("Received: %s\n", msg)
-		currentTime = time.Now().Format("15:04") + " Uhr"
-		msg := types.Message{
-			Sender:    "System",
-			Message:   "Hello! This is a test message. To see how longer messages are handled, please wait for the next message.",
-			Timestamp: currentTime,
-		}
-
-		component := views.Msg(msg)
-		buffer := new(bytes.Buffer)
-		component.Render(context.Background(), buffer)
-
-		if err := ws.WriteMessage(websocket.TextMessage, buffer.Bytes()); err != nil {
-			c.Logger().Error(err)
-		}
-		time.Sleep(3 * time.Second)
-	}
-}
-
 func loginHandler(c echo.Context) error {
 	component := views.Login(types.FormData{})
 	return component.Render(c.Request().Context(), c.Response().Writer)
@@ -93,9 +61,11 @@ func registerPostHandler(c echo.Context) error {
 
 func main() {
 	e := echo.New()
+	manager := NewManager()
+	go manager.HandleClientEvents(context.Background())
 
 	e.GET("/", indexHandler)
-	e.GET("/ws", joinChatHandler)
+	e.GET("/ws", manager.joinChatHandler)
 	e.GET("/chat", chatHandler)
 	e.GET("/login", loginHandler)
 	e.POST("/login", loginAuthHandler)

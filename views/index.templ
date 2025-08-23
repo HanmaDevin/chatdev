@@ -5,30 +5,30 @@ import (
 )
 
 templ Index(data types.Index) {
-	<html class="bg-gray-900 text-gray-100 min-h-screen">
-		<head>
-			<title>Welcome to { data.AppName }</title>
-			// cdn link for htmx
-			<script
-				src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js"
-				integrity="sha384-ksKjJrwjL5VxqAkAZAVOPXvMkwAykMaNYegdixAESVr+KqLkKE8XBDoZuwyWVUDv"
-				crossorigin="anonymous"
-			></script>
-			// htmx websocket extension
-			<script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
-			<script src="https://cdn.tailwindcss.com"></script>
-			<script src="/static/js/main.js"></script>
-		</head>
-		<body class="min-h-screen flex flex-col items-center justify-center">
-			<div class="w-full max-w-md bg-gray-800 shadow-xl p-8 rounded-lg">
-				<h1 class="text-3xl font-bold mb-4 text-center text-green-400">Welcome to { data.AppName }</h1>
-				<p class="mb-2 text-center">This is the home page.</p>
-				<p class="mb-4 text-center text-sm text-gray-400">Current time: { data.CurrentTime }</p>
-				<div class="flex flex-col gap-4 mt-6">
-					<a href="/login" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition-colors text-center">Login</a>
-					<a href="/register" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full transition-colors text-center">Register</a>
-				</div>
-			</div>
-		</body>
-	</html>
+    <html class="bg-gray-900 text-gray-100 min-h-screen">
+        <head>
+            <title>Welcome to { data.AppName }</title>
+            // cdn link for htmx
+            <script
+                src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js"
+                integrity="sha384-ksKjJrwjL5VxqAkAZAVOPXvMkwAykMaNYegdixAESVr+KqLkKE8XBDoZuwyWVUDv"
+                crossorigin="anonymous"
+            ></script>
+            // htmx websocket extension
+            <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <script src="/static/js/main.js"></script>
+        </head>
+        <body class="min-h-screen flex flex-col items-center justify-center">
+            <div class="w-full max-w-md bg-gray-800 shadow-xl p-8 rounded-lg">
+                <h1 class="text-3xl font-bold mb-4 text-center text-green-400">Welcome to { data.AppName }</h1>
+                <p class="mb-2 text-center">This is the home page.</p>
+                <p class="mb-4 text-center text-sm text-gray-400">Current time: { data.CurrentTime }</p>
+                <div class="flex flex-col gap-4 mt-6">
+                    <a href="/login" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition-colors text-center">Login</a>
+                    <a href="/register" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full transition-colors text-center">Register</a>
+                </div>
+            </div>
+        </body>
+    </html>
 }

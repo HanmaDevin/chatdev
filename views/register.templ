@@ -3,37 +3,37 @@ package views
 import "github.com/HanmaDevin/chatdev/types"
 
 templ Register(data types.FormData) {
-	<html class="bg-gray-900 text-gray-100 min-h-screen">
-		<head>
-			<title>Register</title>
-			<script src="https://cdn.tailwindcss.com"></script>
-			<script src="/static/js/main.js"></script>
-		</head>
-		<body class="min-h-screen flex items-center justify-center">
-			<div class="w-full max-w-md bg-gray-800 shadow-xl p-8 rounded-lg">
-				<h1 class="text-3xl font-bold mb-6 text-center text-green-400">Register</h1>
-				<form method="POST" action="/register" class="space-y-4">
-					<div>
-						<label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
-						<input type="text" id="username" name="username" required class="w-full rounded-full px-4 py-2 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"/>
-					</div>
-					<div>
-						<label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
-						<input type="password" id="password" name="password" required class="w-full rounded-full px-4 py-2 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"/>
-					</div>
-					if data.Errors != "" {
-						<div class="text-red-500 text-sm text-center">
-							<small>{ data.Errors }</small>
-						</div>
-					}
-					<div class="mt-6">
-						<button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition-colors">Register</button>
-					</div>
-				</form>
-				<p class="text-center text-sm text-gray-400 mt-4">
-					Already have an account? <a href="/login" class="text-green-400 hover:underline">Login</a>
-				</p>
-			</div>
-		</body>
-	</html>
+        <html class="bg-gray-900 text-gray-100 min-h-screen">
+                <head>
+                        <title>Register</title>
+                        <script src="https://cdn.tailwindcss.com"></script>
+                        <script src="/static/js/main.js"></script>
+                </head>
+                <body class="min-h-screen flex items-center justify-center">
+                        <div class="w-full max-w-md bg-gray-800 shadow-xl p-8 rounded-lg">
+                                <h1 class="text-3xl font-bold mb-6 text-center text-green-400">Register</h1>
+                                <form method="POST" action="/register" class="space-y-4">
+                                        <div>
+                                                <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
+                                                <input type="text" id="username" name="username" required class="w-full rounded-full px-4 py-2 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"/>
+                                        </div>
+                                        <div>
+                                                <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
+                                                <input type="password" id="password" name="password" required class="w-full rounded-full px-4 py-2 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"/>
+                                        </div>
+                                        if data.Errors != "" {
+                                                <div class="text-red-500 text-sm text-center">
+                                                        <small>{ data.Errors }</small>
+                                                </div>
+                                        }
+                                        <div class="mt-6">
+                                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition-colors">Register</button>
+                                        </div>
+                                </form>
+                                <p class="text-center text-sm text-gray-400 mt-4">
+                                        Already have an account? <a href="/login" class="text-green-400 hover:underline">Login</a>
+                                </p>
+                        </div>
+                </body>
+        </html>
 }
