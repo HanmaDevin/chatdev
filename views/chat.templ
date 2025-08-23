@@ -1,0 +1,16 @@
+package views
+
+templ Chat() {
+<div hx-ext="ws" ws-connect="/chat">
+  <h1>Chatdev Room</h1>
+  <div id="chat-messages">
+    <p>Welcome to the chat! Start messaging below.</p>
+
+  </div>
+  <form id="chat-form" ws-send>
+    <input type="text" name="message" placeholder="Type your message..." required />
+    <button type="submit">Send</button>
+  </form>
+
+</div>
+}

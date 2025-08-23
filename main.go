@@ -2,16 +2,18 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
-	"github.com/HanmaDevin/chatdev/db"
 	"github.com/HanmaDevin/chatdev/types"
 	"github.com/HanmaDevin/chatdev/views"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
-var currentTime = time.Now().Format("15:04") + " Uhr"
+var (
+	currentTime = time.Now().Format("15:04") + " Uhr"
+	upgrader    = websocket.Upgrader{}
+)
 
 func indexHandler(c echo.Context) error {
 	data := types.Index{
@@ -24,55 +26,55 @@ func indexHandler(c echo.Context) error {
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
 
+func joinChatHandler(c echo.Context) error {
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		return err
+	}
+	defer ws.Close()
+
+	for {
+		// _, msg, err := ws.ReadMessage()
+		// if err != nil {
+		// 	break
+		// }
+		// fmt.Printf("Received: %s\n", msg)
+		if err := ws.WriteMessage(websocket.TextMessage, []byte("Hello!")); err != nil {
+			c.Logger().Error(err)
+		}
+		time.Sleep(3 * time.Second)
+	}
+}
+
 func loginHandler(c echo.Context) error {
-	formData := types.FormData{}
-	component := views.Form(formData)
+	component := views.Login(types.FormData{})
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
 
 func loginAuthHandler(c echo.Context) error {
-	formData := types.FormData{}
-	formData.Username = c.FormValue("username")
-	formData.Password = c.FormValue("password")
-
-	_, err := db.ValidUser(formData.Username, formData.Password)
-	if err != nil {
-		formData.Errors.UsernameError = "Invalid username or password"
-		component := views.Form(formData)
-		return component.Render(c.Request().Context(), c.Response().Writer)
-	}
-
-	return c.Redirect(301, "/chats")
+	// Placeholder for authentication logic
+	return c.Redirect(301, "/chat")
 }
 
-func chatsHandler(c echo.Context) error {
-
-	data := db.GetAllChats()
-	component := views.Chats(data)
-	fmt.Printf("Data: %+v\n", data)
-
+func registerHandler(c echo.Context) error {
+	component := views.Register(types.FormData{})
 	return component.Render(c.Request().Context(), c.Response().Writer)
 }
 
-func convHandler(c echo.Context) error {
-	id := c.Param("id")
-	idint, err := strconv.Atoi(id)
-	fmt.Printf("ID: %s\n, ID Int: %d\n, Error: %v\n", id, idint, err)
-	// database simulation
-	chat, err := db.GetChatByID(idint)
-	component := views.Conversation(chat)
-
-	return component.Render(c.Request().Context(), c.Response().Writer)
+func registerPostHandler(c echo.Context) error {
+	// Placeholder for registration logic
+	return c.Redirect(301, "/chat")
 }
 
 func main() {
 	e := echo.New()
 
 	e.GET("/", indexHandler)
-	e.GET("/chats", chatsHandler)
+	e.GET("/chat", joinChatHandler)
 	e.GET("/login", loginHandler)
 	e.POST("/login", loginAuthHandler)
-	e.GET("/chat/:id", convHandler)
+	e.GET("/register", registerHandler)
+	e.POST("/register", registerPostHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

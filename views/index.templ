@@ -13,6 +13,8 @@ templ Index(data types.Index) {
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js"
     integrity="sha384-ksKjJrwjL5VxqAkAZAVOPXvMkwAykMaNYegdixAESVr+KqLkKE8XBDoZuwyWVUDv"
     crossorigin="anonymous"></script>
+  // htmx websocket extension
+  <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
 </head>
 
 <body>
@@ -20,7 +22,7 @@ templ Index(data types.Index) {
   <p>This is the home page.</p>
   <p>Current time: {data.CurrentTime}</p>
 
-  <a href="/login">login</a>
+  <a href="/register">login</a>
 </body>
 
 </html>

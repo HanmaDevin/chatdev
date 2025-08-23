@@ -2,22 +2,21 @@ package views
 
 import "github.com/HanmaDevin/chatdev/types"
 
-templ Form(data types.FormData) {
+templ Login(data types.FormData) {
 
 <div class="form-container">
   <h1>Login</h1>
   <form method="POST" action="/login">
     <div class="form-group">
       <label for="username">Username:</label>
-      if data.Errors.UsernameError != "" {
-      <small class="error">{ data.Errors.UsernameError }</small>
-      }
       <input type="text" id="username" name="username" required>
       <label for="password">Password:</label>
-      if data.Errors.PasswordError != "" {
-      <small class="error">{ data.Errors.PasswordError }</small>
-      }
       <input type="password" id="password" name="password" required>
+    </div>
+    <div class="form-group">
+      if data.Errors != "" {
+      <small class="error">{ data.Errors }</small>
+      }
     </div>
     <div class="form-group">
       <button type="submit">Login</button>
