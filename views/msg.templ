@@ -1,0 +1,22 @@
+package views
+
+import (
+"github.com/HanmaDevin/chatdev/types"
+)
+
+templ Msg(msg types.Message) {
+<div id="chat-messages" hx-swap-oob="beforeend:#chat-messages"
+  class="flex-1 overflow-y-auto px-4 py-2 space-y-2 flex flex-col items-start">
+  <div class="bg-gray-700 rounded-xl px-4 py-2 relative max-w-lg w-fit mb-10 ml-2 mt-2">
+    <span class="text-green-400 font-semibold text-sm absolute left-2 top-2">
+      { msg.Sender }
+    </span>
+    <div class="pt-5 pb-4 pr-16 text-gray-100 mt-6">
+      { msg.Message }
+    </div>
+    <span class="text-xs text-gray-400 absolute right-2 bottom-2">
+      { msg.Timestamp }
+    </span>
+  </div>
+</div>
+}
