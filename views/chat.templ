@@ -1,16 +1,54 @@
 package views
 
 templ Chat() {
-<div hx-ext="ws" ws-connect="/chat">
-  <h1>Chatdev Room</h1>
-  <div id="chat-messages">
-    <p>Welcome to the chat! Start messaging below.</p>
+<html class="bg-gray-900 text-gray-100 min-h-screen">
 
+<head>
+  // cdn link for htmx
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js"
+    integrity="sha384-ksKjJrwjL5VxqAkAZAVOPXvMkwAykMaNYegdixAESVr+KqLkKE8XBDoZuwyWVUDv"
+    crossorigin="anonymous"></script>
+  // htmx websocket extension
+  <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const chatMessages = document.getElementById('chat-messages');
+
+      const scrollToBottom = () => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // Scroll to bottom on initial load
+      scrollToBottom();
+
+      // Use MutationObserver to scroll to bottom when new messages are added
+      const observer = new MutationObserver(scrollToBottom);
+      observer.observe(chatMessages, { childList: true });
+    });
+  </script>
+</head>
+
+<body class="bg-base-200 min-h-screen min-w-screen h-screen w-screen flex flex-col">
+  <div hx-ext="ws" ws-connect="/ws" class="w-full h-full bg-gray-800 rounded-none shadow-none flex flex-col">
+    <div class="px-6 py-4 border-b border-gray-700 flex items-center">
+      <h1 class="text-xl font-semibold text-green-400">Chatdev</h1>
+    </div>
+
+    <div class="flex-1 w-full h-full overflow-y-auto" id="chat-messages">
+      // Messages will be injected here
+    </div>
+    <form id="chat-form" ws-send class="px-4 py-3 border-t border-gray-700 flex gap-2 bg-gray-800">
+      <input type="text" name="message" placeholder="Type your message..." required
+        class="flex-1 rounded-full px-4 py-2 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"
+        autocomplete="off" />
+      <button type="submit"
+        class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition-colors">
+        Send
+      </button>
+    </form>
   </div>
-  <form id="chat-form" ws-send>
-    <input type="text" name="message" placeholder="Type your message..." required />
-    <button type="submit">Send</button>
-  </form>
+</body>
 
-</div>
+</html>
 }
