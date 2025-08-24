@@ -13,6 +13,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+var (
+	pongWaitTime = 10 * time.Second
+	pingInterval = 9 * time.Second
+)
+
 type Client struct {
 	Conn        *websocket.Conn
 	ID          string
@@ -32,6 +37,16 @@ func NewClient(conn *websocket.Conn, id string, chatroom string, manager *Manage
 }
 
 func (c *Client) ReadMessage(ctx echo.Context) {
+	if err := c.Conn.SetReadDeadline(time.Now().Add(pongWaitTime)); err != nil {
+		ctx.Logger().Errorf("Error setting read deadline: %v", err)
+		return
+	}
+	c.Conn.SetPongHandler(func(string) error {
+		ctx.Logger().Info("Received pong")
+		fmt.Println("Pong received from client")
+		c.Conn.SetReadDeadline(time.Now().Add(pongWaitTime))
+		return nil
+	})
 	defer func() {
 		c.Conn.Close()
 		c.Manager.ClientEvents <- &ClientListEvent{
@@ -55,11 +70,14 @@ func (c *Client) ReadMessage(ctx echo.Context) {
 			ctx.Logger().Errorf("Error unmarshalling message: %v", err)
 			continue
 		}
-		c.MessageChan <- msgData.Message
+		if err := c.Manager.WriteMessage(msgData.Message, "default"); err != nil {
+			ctx.Logger().Errorf("Error writing message: %v", err)
+			return
+		}
 	}
 }
 
-func (c *Client) WriteMessage(ctx echo.Context) {
+func (c *Client) WriteMessage(echoCtx echo.Context, ctx context.Context) {
 	defer func() {
 		c.Conn.Close()
 		c.Manager.ClientEvents <- &ClientListEvent{
@@ -68,27 +86,39 @@ func (c *Client) WriteMessage(ctx echo.Context) {
 		}
 	}()
 
-	for text := range c.MessageChan {
-		msg := types.Message{
-			Sender:    c.ID,
-			Message:   text,
-			Timestamp: time.Now().Format("15:04"),
-		}
-		component := views.Msg(msg)
-		var buf bytes.Buffer
-		if err := component.Render(context.Background(), &buf); err != nil {
-			ctx.Logger().Errorf("Error rendering message: %v", err)
-			continue
-		}
-
-		fmt.Println("Writing: ", buf.String())
-
-		for _, client := range c.Manager.Clients {
-			if err := client.Conn.WriteMessage(websocket.TextMessage, buf.Bytes()); err != nil {
-				ctx.Logger().Errorf("Error writing message: %v", err)
+	ticker := time.NewTicker(pingInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case text, ok := <-c.MessageChan:
+			if !ok {
+				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-		}
+			msg := types.Message{
+				Sender:    c.ID,
+				Message:   text,
+				Timestamp: time.Now().Format("15:04"),
+			}
+			component := views.Msg(msg)
+			var buf bytes.Buffer
+			if err := component.Render(ctx, &buf); err != nil {
+				echoCtx.Logger().Errorf("Error rendering message: %v", err)
+				continue
+			}
 
+			fmt.Println("Writing: ", buf.String())
+			if err := c.Conn.WriteMessage(websocket.TextMessage, buf.Bytes()); err != nil {
+				echoCtx.Logger().Errorf("Error writing message: %v", err)
+				return
+			}
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := c.Conn.WriteMessage(websocket.PingMessage, []byte("Ping!")); err != nil {
+				return
+			}
+			fmt.Println("Ping sent to client")
+		}
 	}
 }

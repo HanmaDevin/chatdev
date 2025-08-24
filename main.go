@@ -62,10 +62,14 @@ func registerPostHandler(c echo.Context) error {
 func main() {
 	e := echo.New()
 	manager := NewManager()
-	go manager.HandleClientEvents(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go manager.HandleClientEvents(ctx)
 
 	e.GET("/", indexHandler)
-	e.GET("/ws", manager.joinChatHandler)
+	e.GET("/ws", func(c echo.Context) error {
+		return manager.joinChatHandler(c, ctx)
+	})
 	e.GET("/chat", chatHandler)
 	e.GET("/login", loginHandler)
 	e.POST("/login", loginAuthHandler)

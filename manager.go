@@ -36,6 +36,15 @@ func generateRandomName() string {
 	return adj + noun + fmt.Sprintf("%03d", number)
 }
 
+func (m *Manager) WriteMessage(message string, chatroom string) error {
+	for _, client := range m.Clients {
+		if client.Chatroom == chatroom {
+			client.MessageChan <- message
+		}
+	}
+	return nil
+}
+
 func (m *Manager) HandleClientEvents(ctx context.Context) {
 	for event := range m.ClientEvents {
 		select {
@@ -64,7 +73,7 @@ func (m *Manager) HandleClientEvents(ctx context.Context) {
 	}
 }
 
-func (m *Manager) joinChatHandler(c echo.Context) error {
+func (m *Manager) joinChatHandler(c echo.Context, ctx context.Context) error {
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
@@ -78,7 +87,7 @@ func (m *Manager) joinChatHandler(c echo.Context) error {
 	}
 
 	go newClient.ReadMessage(c)
-	go newClient.WriteMessage(c)
+	go newClient.WriteMessage(c, ctx)
 
 	return nil
 }
