@@ -44,6 +44,7 @@ func (m *Manager) HandleClientEvents(ctx context.Context) {
 		default:
 			switch event.EventType {
 			case "join":
+				fmt.Printf("Client joined: %s\n", event.Client.ID)
 				for _, client := range m.Clients {
 					if client.ID == event.Client.ID {
 						return
@@ -51,6 +52,7 @@ func (m *Manager) HandleClientEvents(ctx context.Context) {
 				}
 				m.Clients = append(m.Clients, event.Client)
 			case "leave":
+				fmt.Printf("Client left: %s\n", event.Client.ID)
 				for i, client := range m.Clients {
 					if client.ID == event.Client.ID {
 						m.Clients = append(m.Clients[:i], m.Clients[i+1:]...)
